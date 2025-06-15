@@ -1,0 +1,65 @@
+body {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  justify-content: center;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 8vmin;
+}
+.board {
+  min-height: 85vmin;
+  min-width: 85vmin;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 10px;
+  justify-content: center;
+}
+
+.box {
+  font-size: 8vmin;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.X {
+  color: red;
+  font-weight: bolder;
+  background-color: white;
+}
+
+.O {
+  color: blue;
+  background-color: white;
+}
+
+dialog {
+  padding: 20px;
+}
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+button {
+  margin: 0;
+  border-radius: 5px;
+  width: 49%;
+  height: 60px;
+  font-size: 30px;
+  color: white;
+}
+
+#restart {
+  background-color: rgb(143, 16, 16);
+}
+
+#next-round {
+  background-color: rgb(0, 140, 255);
+}

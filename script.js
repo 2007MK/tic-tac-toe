@@ -8,18 +8,17 @@ const Gameboard = (function () {
 
     function updateBoard(place, marker) {
         board[place] = marker;
-        console.log(board);
     }
 
     function getBoard() {
         return board;
     }
 
-    function resetBoard() {
+    function disableBoard() {
 
     }
 
-    return {updateBoard, markers, getBoard, resetBoard, };
+    return {updateBoard, markers, getBoard, disableBoard, };
 })();
 
 
@@ -52,6 +51,7 @@ const GameController = (function () {
                 let marker = turnSwitcher();
                 Gameboard.updateBoard((place - 1), marker);
                 turn++;
+                displayController.render();
                 checkWin();
             } else {
                 console.log("All players done playing");
@@ -71,7 +71,6 @@ const GameController = (function () {
                         indicesContainingX.push(index);
                     }
                 });
-                console.log(indicesContainingX);
                 return indicesContainingX;
             },
             
@@ -82,7 +81,6 @@ const GameController = (function () {
                         indicesContainingO.push(index);
                     }
                 });
-                console.log(indicesContainingO);
                 return indicesContainingO;
             }
         }
@@ -97,25 +95,75 @@ const GameController = (function () {
         let xFilled = filledPlaces.X();
         for (const element of winningCombinations) {
             if (element.every(index => xFilled.includes(index))) {
-                announceWinner(Player1);
+                displayController.announceWinner(Player1);
                 break;
             }
         }            
         let oFilled = filledPlaces.O();
         for (const element of winningCombinations) {
             if (element.every(index => oFilled.includes(index))) {
-                announceWinner(Player2);
+                displayController.announceWinner(Player2);
                 break;
             }
-        }            
+        } 
+        
+        if (turn == 10) {
+            displayController.announceWinner(); //announce tie if all the turns are over/all the boxes have been filled
+        }
     }
 
-    function announceWinner(winner) {
-        console.log(`The Winner is: ${winner.name}`);
-    }
-
+    
     return { choice, };
 })();
 
 
+const displayController = (function() {
+    function render() {
+        let boardUI = document.querySelector(".board");
+        boardUI.innerHTML = "";
+        let boardArray = Gameboard.getBoard();
+        for (let i = 0; i < 9; i++) {
+            let box = document.createElement("div");
+            box.setAttribute("class", "box");
+            box.setAttribute("id", i+1);
+            if (boardArray[i] == '') {
+                box.textContent = "";
+            } else {
+                if (boardArray[i] == 'X') {
+                    box.textContent = "X";
+                    box.setAttribute("class", "box X");
+                } else {
+                    box.textContent = "O";
+                    box.setAttribute("class", "box O");
+                }
+            }
+            click(box);
+            boardUI.appendChild(box);            
+        };
+    };
 
+    function click(box) {
+        box.addEventListener("click", (e) => {
+            GameController.choice(e.target.id);
+            console.log(Gameboard.getBoard());
+            
+        })
+    }
+
+    function announceWinner(winner) {
+        let modal = document.querySelector("dialog")
+        let h1 = document.querySelector(".announcement");
+        if (winner == undefined) {
+            h1.textContent = "It's a Tie!"; 
+            console.log(h1);
+        } else {
+            h1.textContent = `The winner is ${winner.name}`;
+        }
+        modal.showModal();
+    }
+
+    return {render, announceWinner};
+})();
+
+
+displayController.render();
