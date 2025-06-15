@@ -15,7 +15,11 @@ const Gameboard = (function () {
         return board;
     }
 
-    return {updateBoard, markers, getBoard, };
+    function resetBoard() {
+
+    }
+
+    return {updateBoard, markers, getBoard, resetBoard, };
 })();
 
 
@@ -59,8 +63,7 @@ const GameController = (function () {
         }
     };
 
-    function checkWin() {
-        let filledPlaces = {
+    let filledPlaces = {
             X: function() {
                 let indicesContainingX = [];
                 board.forEach((element, index) => {
@@ -68,6 +71,7 @@ const GameController = (function () {
                         indicesContainingX.push(index);
                     }
                 });
+                console.log(indicesContainingX);
                 return indicesContainingX;
             },
             
@@ -78,9 +82,36 @@ const GameController = (function () {
                         indicesContainingO.push(index);
                     }
                 });
+                console.log(indicesContainingO);
                 return indicesContainingO;
             }
-        }        
+        }
+
+    function checkWin() {
+        let winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+        
+        let xFilled = filledPlaces.X();
+        for (const element of winningCombinations) {
+            if (element.every(index => xFilled.includes(index))) {
+                announceWinner(Player1);
+                break;
+            }
+        }            
+        let oFilled = filledPlaces.O();
+        for (const element of winningCombinations) {
+            if (element.every(index => oFilled.includes(index))) {
+                announceWinner(Player2);
+                break;
+            }
+        }            
+    }
+
+    function announceWinner(winner) {
+        console.log(`The Winner is: ${winner.name}`);
     }
 
     return { choice, };
