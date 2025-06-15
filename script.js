@@ -11,7 +11,11 @@ const Gameboard = (function () {
         console.log(board);
     }
 
-    return {updateBoard, markers};
+    function getBoard() {
+        return board;
+    }
+
+    return {updateBoard, markers, getBoard, };
 })();
 
 
@@ -38,13 +42,19 @@ const GameController = (function () {
     
 
     function choice(place) {
-        if(turn <= 9) {
-            let marker = turnSwitcher();
-            Gameboard.updateBoard((place - 1), marker);
-            turn++;
+        let board = Gameboard.getBoard();
+        if (!(Gameboard.markers.includes(board[place - 1])) && (place <= 9)) {            
+            if(turn <= 9) {
+                let marker = turnSwitcher();
+                Gameboard.updateBoard((place - 1), marker);
+                turn++;
+            } else {
+                console.log("hold on");
+            }            
         } else {
-            console.log("hold on");
-        }            
+            console.log("That place is already occupied");
+            
+        }
     };
 
     return { choice, };
