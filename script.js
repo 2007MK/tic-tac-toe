@@ -33,7 +33,7 @@ const GameController = (function () {
     
     let turn = 1;
     function turnSwitcher() {
-            if (turn % 2 == 1) {
+            if (turn % 2 == 1) { //odd turns played by Player1
                 return `${Player1.marker}`;
             } else {
                 return `${Player2.marker}`;
@@ -41,21 +41,47 @@ const GameController = (function () {
     }
     
 
+    let board = Gameboard.getBoard();
     function choice(place) {
-        let board = Gameboard.getBoard();
         if (!(Gameboard.markers.includes(board[place - 1])) && (place <= 9)) {            
             if(turn <= 9) {
                 let marker = turnSwitcher();
                 Gameboard.updateBoard((place - 1), marker);
                 turn++;
+                checkWin();
             } else {
-                console.log("hold on");
+                console.log("All players done playing");
+                // probably announce winner or something in the future
             }            
         } else {
             console.log("That place is already occupied");
             
         }
     };
+
+    function checkWin() {
+        let filledPlaces = {
+            X: function() {
+                let indicesContainingX = [];
+                board.forEach((element, index) => {
+                    if(element === 'X') {
+                        indicesContainingX.push(index);
+                    }
+                });
+                return indicesContainingX;
+            },
+            
+            O: function() {
+                let indicesContainingO = [];
+                board.forEach((element, index) => {
+                    if(element === 'O') {
+                        indicesContainingO.push(index);
+                    }
+                });
+                return indicesContainingO;
+            }
+        }        
+    }
 
     return { choice, };
 })();
