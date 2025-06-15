@@ -43,6 +43,7 @@ h1 {
 dialog {
   padding: 20px;
 }
+
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.8);
 }
@@ -56,7 +57,7 @@ button {
   color: white;
 }
 
-#restart {
+#reset {
   background-color: rgb(143, 16, 16);
 }
 

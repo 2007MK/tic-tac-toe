@@ -3,28 +3,62 @@ const Gameboard = (function () {
     "", "", "", 
     "", "", "", 
     "", "", ""];
-
+    
     let markers = ["X", "O"];
-
+    
     function updateBoard(place, marker) {
         board[place] = marker;
     }
-
+    
     function getBoard() {
         return board;
     }
+    
+    
+    function roundStarter() {
+        board = [
+        "", "", "", 
+        "", "", "", 
+        "", "", ""];
 
-    function disableBoard() {
+        GameController.resetTurn();
+    }
+
+    function resetBoard() {
+        displayController.destroyModal();
+        roundStarter();
+        GameController.Player1.resetScore();
+        GameController.Player2.resetScore();
+        displayController.render();
+        
+    }
+    
+    function nextRound() {
+        displayController.destroyModal();
+        roundStarter();
+        displayController.render();
 
     }
 
-    return {updateBoard, markers, getBoard, disableBoard, };
+    return {updateBoard, markers, getBoard, resetBoard, nextRound};
 })();
 
 
 // Player factory
 function Player(name, marker) {
-    return { name, marker };
+    let score = 0;
+    function getScore() {
+        return score;
+    }
+
+    function resetScore() {
+        score = 0;
+    }
+
+    function incrementScore() {
+        score++;
+    }
+    return { name, marker, getScore, resetScore, incrementScore };
 }
 
 
@@ -35,6 +69,7 @@ const GameController = (function () {
         let Player2 = Player("Player2", Gameboard.markers[1]);
     
     let turn = 1;
+    const resetTurn = () => turn = 1;
     function turnSwitcher() {
             if (turn % 2 == 1) { //odd turns played by Player1
                 return `${Player1.marker}`;
@@ -44,9 +79,8 @@ const GameController = (function () {
     }
     
 
-    let board = Gameboard.getBoard();
     function choice(place) {
-        if (!(Gameboard.markers.includes(board[place - 1])) && (place <= 9)) {            
+        if (!(Gameboard.markers.includes((Gameboard.getBoard())[place - 1])) && (place <= 9)) {            
             if(turn <= 9) {
                 let marker = turnSwitcher();
                 Gameboard.updateBoard((place - 1), marker);
@@ -66,7 +100,7 @@ const GameController = (function () {
     let filledPlaces = {
             X: function() {
                 let indicesContainingX = [];
-                board.forEach((element, index) => {
+                (Gameboard.getBoard()).forEach((element, index) => {
                     if(element === 'X') {
                         indicesContainingX.push(index);
                     }
@@ -76,7 +110,7 @@ const GameController = (function () {
             
             O: function() {
                 let indicesContainingO = [];
-                board.forEach((element, index) => {
+                (Gameboard.getBoard()).forEach((element, index) => {
                     if(element === 'O') {
                         indicesContainingO.push(index);
                     }
@@ -113,7 +147,7 @@ const GameController = (function () {
     }
 
     
-    return { choice, };
+    return { choice, Player1, Player2, resetTurn};
 })();
 
 
@@ -150,19 +184,82 @@ const displayController = (function() {
         })
     }
 
-    function announceWinner(winner) {
-        let modal = document.querySelector("dialog")
-        let h1 = document.querySelector(".announcement");
-        if (winner == undefined) {
-            h1.textContent = "It's a Tie!"; 
-            console.log(h1);
-        } else {
-            h1.textContent = `The winner is ${winner.name}`;
-        }
+    function createModal(winnerAnnouncement) {
+        let body = document.querySelector("body");
+        let modal = document.createElement("dialog");
+        let h1 = document.createElement("h1");
+        let resetBoardBtn = document.createElement("button");
+        let nextRoundBtn = document.createElement("button");
+        let p1Score = document.createElement("p");
+        let p2Score = document.createElement("p");
+
+        h1.setAttribute("class", "announcement");
+        resetBoardBtn.setAttribute("id", "reset");
+        resetBoardBtn.textContent = "Reset"
+        nextRoundBtn.setAttribute("id", "next-round");
+        nextRoundBtn.textContent = "Next Round";
+
+        
+        h1.textContent = winnerAnnouncement;
+        p1Score.textContent = `${GameController.Player1.name} : ${GameController.Player1.getScore()}`
+        p2Score.textContent = `${GameController.Player2.name} : ${GameController.Player2.getScore()}`
+        
+        modal.appendChild(h1);
+        modal.appendChild(p1Score);
+        modal.appendChild(p2Score);
+        modal.appendChild(resetBoardBtn);
+        modal.appendChild(nextRoundBtn);
+        body.appendChild(modal);
+        
+        displayModal(modal);
+        addListeners(resetBoardBtn, nextRoundBtn);
+
+    }
+
+
+    function displayModal(modal) {
         modal.showModal();
     }
 
-    return {render, announceWinner};
+
+    function destroyModal() {
+        let modal = document.querySelector("dialog");
+        let body = document.querySelector("body");
+        modal.close();
+        modal.innerHTML = "";
+        body.removeChild(modal);
+        console.log("Modal closed and destoyed");
+    }
+
+    function announceWinner(winner) {
+        if (winner == undefined) {
+            console.log("its a tie");
+            createModal("It's a Tie"); 
+        } else {
+            console.log(`The winner is ${winner.name}`);
+            winner.incrementScore();            
+            createModal(`The winner is ${winner.name}`);
+        }
+    }
+    
+
+    function addListeners(...args) {
+        args.forEach(element => {
+            if (element.id == "reset") {
+                element.addEventListener("click", () => {
+                    Gameboard.resetBoard();
+                })
+            }
+
+            if (element.id == "next-round") {
+                element.addEventListener("click", () => {
+                    Gameboard.nextRound();
+                })
+            }
+        })
+    }
+    
+    return {render, announceWinner, destroyModal,};
 })();
 
 
